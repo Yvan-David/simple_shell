@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #define BUFFERSIZE 1024
-char* main(void)
+int main(void)
 {
     char *line = NULL;
     int count = 0;
@@ -22,7 +22,7 @@ char* main(void)
         if (line[count] == EOF || line[count] == '\n')
             {
                 line[count] = '\0';
-                return (line);
+                return (0);
             }
         count++;
         if(count >= bufsize)
