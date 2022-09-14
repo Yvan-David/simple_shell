@@ -1,12 +1,14 @@
+#include <stdio.h>
 #include "main.h"
 /**
+* main - where shell operate
 * loop - loops the commands
-* @argv: arguement
-* @args: arguments
+* @argc: interger
+* @argv: double pointer
 * Return: a number
 */
-int main (void)
+int main(int argc, char **argv)
 {
-    loop();
-    return (0);
+loop();
+return (EXIT_SUCCESS);
 }
