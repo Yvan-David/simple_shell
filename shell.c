@@ -64,15 +64,14 @@ return (tokens);
 }
 /**
  *main - create a command
- *@tokens: parameter
  *Return: value
  */
-int main(char *tokens)
+int main(void)
 {
 while (1)
 {
-main2(main1());
 char *argv[] = {"/bin/ls", "-l", "/usr", NULL};
+main2(main1());
 if (fork() == 0)
 {
 if (execve(argv[0], argv, NULL) == -1)
