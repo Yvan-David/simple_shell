@@ -3,39 +3,83 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#define BUFFERSIZE 1024
-int main(void)
+#define BUFFERSIZE 64
+/**
+ *main1 - create a command
+ *Return: value
+ */
+char *main1(void)
 {
-    char *line = NULL;
-    int count = 0;
-    int bufsize = BUFFERSIZE;
-    line = (char*)malloc(sizeof(char) * bufsize);
-    if (!line)
-            {
-                printf("error");
-                exit(EXIT_FAILURE);
-            }
-    do
-    {
-        
-        line[count] = getchar();
-        if (line[count] == EOF || line[count] == '\n')
-            {
-                line[count] = '\0';
-                return (0);
-            }
-        count++;
-        if(count >= bufsize)
-        {
-            bufsize += BUFFERSIZE;
-            line = realloc(line, bufsize);
-            if (!line)
-            {
-                printf("error");
-                exit(EXIT_FAILURE);
-            }
-
-        }
-    }
-    while(1);
+char *buffer = NULL;
+size_t bufsize;
+printf("$");
+if (getline(&buffer, &bufsize, stdin) == -1)
+{
+if (feof(stdin))
+{
+exit(EXIT_SUCCESS);
+}
+else
+{
+printf("erro");
+exit(EXIT_FAILURE);
+}
+}
+return (buffer);
+}
+/**
+ *main2 - create a command
+ * *@buffer: line poointer
+ *Return: value
+ */
+char **main2(char *buffer)
+{
+int count = 0, bufsiz = BUFFERSIZE;
+char *token, **tokens;
+tokens = malloc(sizeof(char *) * bufsiz);
+if (!tokens)
+{
+printf("error1");
+exit(EXIT_FAILURE);
+}
+token = strtok(buffer, " ");
+while (token != NULL)
+{
+tokens[count] = token;
+if (count >= bufsiz)
+{
+bufsiz += BUFFERSIZE;
+tokens = realloc(tokens, sizeof(char *) * bufsiz);
+if (!tokens)
+{
+printf("error1");
+exit(EXIT_FAILURE);
+}
+}
+count++;
+token = strtok(NULL, " ");
+}
+tokens[count] = NULL;
+return (tokens);
+}
+/**
+ *main - create a command
+ *@tokens: parameter
+ *Return: value
+ */
+int main(char *tokens)
+{
+while (1)
+{
+main2(main1());
+char *argv[] = {"/bin/ls", "-l", "/usr", NULL};
+if (fork() == 0)
+{
+if (execve(argv[0], argv, NULL) == -1)
+printf("error");
+}
+else
+wait(NULL);
+}
+return (0);
 }
