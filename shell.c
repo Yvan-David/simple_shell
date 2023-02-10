@@ -1,84 +1,40 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#define BUFFERSIZE 64
+#include "shell.h"
+
 /**
- *main1 - create a command
- *Return: value
+ * main - creates a prompt that reads input, sparses it, executes and waits
+ * for another command unless told to exit
+ * @ac: number of arguements
+ * @av: array of arguements
+ * @env: environment variable
+ * Return: EXIT_SUCCESS
  */
-char *main1(void)
+int main(int ac __attribute__((unused)), char **av, char **env)
 {
-char *buffer = NULL;
-size_t bufsize;
-printf("$");
-if (getline(&buffer, &bufsize, stdin) == -1)
-{
-if (feof(stdin))
-{
-exit(EXIT_SUCCESS);
-}
-else
-{
-printf("erro");
-exit(EXIT_FAILURE);
-}
-}
-return (buffer);
-}
-/**
- *main2 - create a command
- * *@buffer: line poointer
- *Return: value
- */
-char **main2(char *buffer)
-{
-int count = 0, bufsiz = BUFFERSIZE;
-char *token, **tokens;
-tokens = malloc(sizeof(char *) * bufsiz);
-if (!tokens)
-{
-printf("error1");
-exit(EXIT_FAILURE);
-}
-token = strtok(buffer, " ");
-while (token != NULL)
-{
-tokens[count] = token;
-if (count >= bufsiz)
-{
-bufsiz += BUFFERSIZE;
-tokens = realloc(tokens, sizeof(char *) * bufsiz);
-if (!tokens)
-{
-printf("error1");
-exit(EXIT_FAILURE);
-}
-}
-count++;
-token = strtok(NULL, " ");
-}
-tokens[count] = NULL;
-return (tokens);
-}
-/**
- *main - create a command
- *Return: value
- */
-int main(void)
-{
-while (1)
-{
-char *argv[] = {"/bin/ls", "-l", "/usr", NULL};
-main2(main1());
-if (fork() == 0)
-{
-if (execve(argv[0], argv, NULL) == -1)
-printf("error");
-}
-else
-wait(NULL);
-}
-return (0);
+	char *line;
+	char **args, **path;
+	int count = 0, status = 0;
+	(void) av;
+	signal(SIGINT, handle_signal);
+	while (1)
+	{
+		prompt();
+		/*read input and return string*/
+		line = read_input();
+		/*separates string to get command and atgs*/
+		args = sparse_str(line, env);
+
+		if ((_strcmp(args[0], "\n") != 0) && (_strcmp(args[0], "env") != 0))
+		{
+			count += 1;
+			path = search_path(env); /*finds PATH in the environment variables*/
+			status = _stat(args, path);
+			child_process(av, args, env, status, count);
+		}
+		else
+		{
+			free(args);
+		}
+		free(line);
+	}
+	return (EXIT_SUCCESS);
 }
