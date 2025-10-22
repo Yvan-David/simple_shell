@@ -1,4 +1,6 @@
 #include "shell.h"
+#include <signal.h>
+
 
 /**
  * main - creates a prompt that reads input, sparses it, executes and waits
